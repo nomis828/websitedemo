@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Four Patches of Ground, One Sky: Tasiapik Valley</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,500;6..72,600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f3f5f6;
+  --surface: #ffffff;
+  --ink: #13191e;
+  --muted: #5a6670;
+  --line: #d8dee2;
+  --accent: #1d6a55;
+  --zero: #ecebe7;
+  --missing: #e6e9eb;
+  --envelope: #e3e7ea;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --series-4: #eda100;
+  --font-display: "Newsreader", "Iowan Old Style", Georgia, serif;
+  --font-body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1215; --surface: #161c20; --ink: #e7ecef; --muted: #9ba7af; --line: #2a3339;
+    --accent: #5cc29f; --zero: #d3d2cc; --missing: #20272c; --envelope: #232b31;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1215; --surface: #161c20; --ink: #e7ecef; --muted: #9ba7af; --line: #2a3339;
+  --accent: #5cc29f; --zero: #d3d2cc; --missing: #20272c; --envelope: #232b31;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 56px; display: grid; gap: 30px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+h1 { font-size: 36px; line-height: 1.1; }
+h2 { font-size: 24px; line-height: 1.2; }
+h3 { font-size: 17px; line-height: 1.25; }
+p { margin: 0; }
+.lede { max-width: 72ch; }
+.meta { color: var(--muted); font-size: 13px; }
+.note { color: var(--muted); font-size: 13px; max-width: 80ch; }
+header { display: grid; gap: 10px; }
+.kpis { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 6px; }
+.kpi { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; }
+.kpi .v { font-family: var(--font-display); font-size: 28px; line-height: 1.1; }
+.kpi .l { color: var(--muted); font-size: 13px; }
+section { display: grid; gap: 12px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; }
+.row-head { display: grid; grid-template-columns: 170px 1fr 1fr; gap: 12px; color: var(--muted); font-size: 13px; }
+.site-row { display: grid; grid-template-columns: 170px 1fr 1fr; gap: 12px; align-items: stretch; }
+.site-label { display: grid; align-content: start; gap: 4px; font-size: 13px; }
+.site-label .nm { font-weight: 600; font-size: 14px; display: flex; align-items: center; gap: 7px; }
+.sw { width: 10px; height: 10px; border-radius: 3px; display: inline-block; flex: none; }
+canvas { display: block; width: 100%; }
+canvas.heat { height: 128px; cursor: crosshair; }
+.cbar { height: 36px; }
+.controls { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+button.play { font: 500 14px var(--font-body); background: var(--ink); color: var(--surface); border: 0; border-radius: 8px; padding: 7px 16px; cursor: pointer; min-width: 80px; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 8px; overflow: hidden; }
+.seg button { font: 500 13px var(--font-body); background: var(--surface); color: var(--ink); border: 0; padding: 6px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--surface); }
+input[type=range] { width: min(520px, 100%); accent-color: var(--ink); }
+.datebig { font-family: var(--font-mono); font-size: 15px; min-width: 120px; }
+.profiles { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+.profiles canvas { height: 360px; }
+.two { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
+.three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.chart { height: 260px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink); align-items: center; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.lg-line { width: 18px; height: 0; border-top: 2px solid; display: inline-block; }
+.lg-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.lg-band { width: 18px; height: 10px; display: inline-block; border-radius: 2px; }
+table { border-collapse: collapse; font-size: 14px; width: 100%; }
+th, td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+th:first-child, td:first-child { text-align: left; }
+thead th { color: var(--muted); font-weight: 500; font-size: 13px; }
+td.best { font-weight: 600; }
+.tables { display: grid; grid-template-columns: 1.25fr 1fr; gap: 16px; align-items: start; }
+th, td { white-space: nowrap; }
+#partable td:first-child { white-space: normal; }
+#tip { position: fixed; pointer-events: none; background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font-size: 12.5px; line-height: 1.45; box-shadow: 0 4px 16px rgba(0,0,0,.12); display: none; z-index: 10; min-width: 150px; }
+#tip .row { display: flex; justify-content: space-between; gap: 14px; }
+#tip .k { color: var(--muted); }
+ul.refs { margin: 0; padding-left: 18px; font-size: 13.5px; display: grid; gap: 4px; }
+a { color: var(--accent); }
+@media (max-width: 900px) {
+  .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .row-head { display: none; }
+  .site-row { grid-template-columns: 1fr; }
+  .profiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .two, .three, .tables { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <p class="meta">Tasiapik Valley, Umiujaq, Nunavik · 56.56° N, 76.48° W · four ground-temperature profiles, July 2014 to June 2018</p>
+  <h1>Four patches of ground, one sky</h1>
+  <p class="lede">Four ground-temperature profiles less than 200 m apart, under the same air. In the winter of 2014–15 the ground 10 cm down fell to <span id="l-cold"></span> at one site and only to <span id="l-warm"></span> at another. The difference is snow: shrubs, trees and hollows catch the snow the wind carries, and snow is a blanket. Below, a differentiable soil column driven by the measured weather and calibrated on these profiles by gradient-based least squares, shown against the sensors themselves. The last winter (2017–18) was held out of the fit.</p>
+  <div class="kpis" id="kpis"></div>
+</header>
+
+<section>
+  <h2>Measured and simulated, depth by day</h2>
+  <p class="note">Each strip is one site: time runs left to right over four years, depth runs down to 4.2 m. Left: the sensors (lines between sensor depths are interpolated, ticks on the axis mark the sensors, grey means no working sensor). Right: the calibrated model on the same scale. The neutral band at 0 °C each spring is the zero curtain: meltwater refreezing in the frozen ground warms the whole profile to 0 °C within days. Click anywhere to move the cursor.</p>
+  <div class="card">
+    <div class="row-head"><div></div><div>Measured</div><div>Model (best fit)</div></div>
+    <div id="rows" style="display:grid;gap:14px"></div>
+    <div class="site-row" style="align-items:center"><div class="meta">Ground temperature</div><canvas class="cbar" id="cbar"></canvas><div class="meta" id="splitnote"></div></div>
+  </div>
+</section>
+
+<section>
+  <h2>One day, four profiles</h2>
+  <p class="note">Temperature against depth on the cursor day. Grey: the full measured range at each depth over the record. Coloured band: the model's 90% posterior band; line: its median. Dots: the sensors that day. Above ground: the snow the model holds at each site (measured at the weather station, scaled by the site's calibrated snow catch).</p>
+  <div class="controls">
+    <button class="play" id="play" aria-label="Play">Play</button>
+    <input type="range" id="slider" min="0" max="1460" value="200" aria-label="Day">
+    <span class="datebig" id="datelabel"></span>
+    <span class="seg" id="speed" role="group" aria-label="Speed"></span>
+  </div>
+  <div class="legend">
+    <span><span class="lg-band" style="background:var(--envelope)"></span>Measured range, whole record</span>
+    <span><span class="lg-band" style="background:var(--series-1);opacity:.28"></span>Model, 90% band</span>
+    <span><span class="lg-line" style="border-color:var(--series-1)"></span>Model median</span>
+    <span><span class="lg-dot" style="background:var(--ink)"></span>Sensors</span>
+  </div>
+  <div class="profiles" id="profiles"></div>
+</section>
+
+<section>
+  <h2>Snow sets the winter</h2>
+  <p class="note">Left: snow depth at the valley weather station, measured and simulated by the calibrated degree-day snow model (free-running, no measurements fed in). Right: how much of the station's snow each site holds, as calibrated from the ground temperatures alone, against the measured winter (December to February) temperature 10 cm down, averaged over the winters on record (only 2014–15, a cold one, at LH). Bars: 90% posterior interval.</p>
+  <div class="two">
+    <div class="card"><div class="legend"><span><span class="lg-line" style="border-color:var(--ink)"></span>Measured</span><span><span class="lg-line" style="border-color:var(--series-1)"></span>Model</span></div><canvas class="chart" id="snowchart"></canvas></div>
+    <div class="card"><canvas class="chart" id="catch"></canvas></div>
+  </div>
+</section>
+
+<section>
+  <h2>How much snow, how much warming?</h2>
+  <p class="note">Mean annual ground temperature at 1 m, simulated for open lichen ground (the calibrated LLS soil and surface) under the weather of 2014–2024, repeated and shifted warmer or colder, for any amount of snow held. Below the line, the ground at 1 m averages below 0 °C, the threshold for permafrost. The four sites sit at zero shift, at their calibrated snow catch. In this sand, flowing groundwater (assumed to warm with the air) keeps everything below the water table above 0 °C whatever happens at the surface, which is why this valley's remaining permafrost is in ice-rich mounds rather than under these profiles (Dagenais et al. 2020).</p>
+  <div class="card"><canvas id="phase" style="height:420px"></canvas></div>
+</section>
+
+<section>
+  <h2>Forty-four years at the four sites</h2>
+  <p class="note">The calibrated model run from 1980 with the gap-filled forcing and the free-running snow model (bands: 90% posterior). Left: mean annual ground temperature at 1 m. Middle: annual mean air temperature. Right: deepest seasonal frost each winter.</p>
+  <div class="legend" id="hindlegend"></div>
+  <div class="three">
+    <div class="card"><canvas class="chart" id="hmagt"></canvas></div>
+    <div class="card"><canvas class="chart" id="htair"></canvas></div>
+    <div class="card"><canvas class="chart" id="hfrost"></canvas></div>
+  </div>
+</section>
+
+<section>
+  <h2>How good is it, and what each piece buys</h2>
+  <p class="note">Root-mean-square error (°C) over all sensors. Calibration ("cal."): July 2014 to June 2017. Held out ("test"): July 2017 to June 2018 (no data at LH). "Prior" uses the literature values before fitting; the other columns refit the model without one piece of physics. Without groundwater the error rises at the two lichen sites, and the fit can only match the warm deep sand by making frozen sand conduct heat worse than thawed sand (ratio 0.70), which sand does not do. Without meltwater refreezing the overall error barely moves, but the spring error below 0.4 m grows by 10 to 15%: that term only acts during a few weeks a year.</p>
+  <div class="tables">
+    <div class="card"><table id="errtable"></table></div>
+    <div class="card"><table id="partable"></table></div>
+  </div>
+</section>
+
+<section>
+  <h2>What the model is</h2>
+  <div class="card" style="gap:10px">
+    <p class="note" style="color:var(--ink);max-width:none">A one-dimensional heat equation with freezing and thawing (enthalpy form, 40 cells to 25 m, implicit daily steps solved by Newton), written in JAX so that every output is differentiable with respect to every coefficient. Top: sol-air temperature through a snow layer whose conductivity follows Sturm et al. (1997). Three pieces of physics were needed by the data: (1) snow catch per site, (2) meltwater that infiltrates frozen sand and refreezes, releasing latent heat (the spring zero curtain), with the refrozen ice tracked so it has to melt again, (3) exchange with flowing groundwater below the water table (the profiles are in piezometers in a sandy aquifer; Dagenais et al. 2020 show that heat carried by groundwater plays a critical role in permafrost thaw in this valley). Twenty-nine coefficients are fitted jointly by Levenberg–Marquardt with forward-mode Jacobians through 5,100 daily steps per site. The posterior is a Laplace approximation with the error variance inflated for the strong day-to-day correlation of the residuals, so the bands are honest about how few independent pieces of information four years of daily data contain. Sensor offsets (0.1–0.7 °C) were removed using the zero curtain as a reference; five faulty sensors were dropped.</p>
+    <p class="note" style="color:var(--ink);max-width:none">Limits: the snow catch of a site is one number for all winters, while the wind redistributes snow differently each year (the 2014–15 winter is where the fit is worst); the groundwater temperature is a constant; the forcing before 2012 comes from a coastal station and ERA5, corrected to the valley station by monthly offsets.</p>
+  </div>
+</section>
+
+<section>
+  <h2>Data and sources</h2>
+  <ul class="refs">
+    <li>Lemieux, J.-M., Murray, R., Fortier, R., Dagenais, S., Fortier, P., Young, N. L. (2020). Subsurface ground temperature, Tasiapik Valley, Nunavik, Québec, v. 1.0 (2014–2019). Nordicana D70. <a href="https://doi.org/10.5885/45633XD-C5F505FAA5984669">doi:10.5885/45633XD-C5F505FAA5984669</a></li>
+    <li>CEN (2026). Climate station data from the Umiujaq region in Nunavik, Quebec, Canada. Nordicana D9. <a href="https://doi.org/10.5885/45120SL-067305A53E914AF0">doi:10.5885/45120SL-067305A53E914AF0</a> (stations VDTSILA, VDTBUTS, UMIROCA)</li>
+    <li>Hersbach, H. et al. (2020). The ERA5 global reanalysis, via the Open-Meteo historical weather API (radiation, precipitation, air temperature gap filling).</li>
+    <li>Dagenais, S., Molson, J., Lemieux, J.-M., Fortier, R., Therrien, R. (2020). Coupled cryo-hydrogeological modelling of permafrost dynamics near Umiujaq (Nunavik, Canada). Hydrogeology Journal 28. <a href="https://doi.org/10.1007/s10040-020-02111-3">doi:10.1007/s10040-020-02111-3</a></li>
+    <li>Sturm, M., Holmgren, J., König, M., Morris, K. (1997). The thermal conductivity of seasonal snow. Journal of Glaciology 43(143).</li>
+  </ul>
+</section>
+
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const DATA = /*__DATA__*/null;
+
+/* ---------- tokens, colour ---------- */
+let TOK = {};
+function readTokens() {
+  const cs = getComputedStyle(document.documentElement);
+  for (const k of ["bg", "surface", "ink", "muted", "line", "accent", "zero", "missing", "envelope", "series-1", "series-2", "series-3", "series-4"])
+    TOK[k] = cs.getPropertyValue("--" + k).trim();
+}
+const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mix = (a, b, f) => a.map((v, i) => v + (b[i] - v) * f);
+const rgb = (c, a) => a === undefined ? `rgb(${c.map(v => Math.round(v)).join(",")})` : `rgba(${c.map(v => Math.round(v)).join(",")},${a})`;
+const BLUE = ["#cde2fb", "#9ec5f4", "#6da7ec", "#3987e5", "#256abf", "#184f95", "#0d366b"].map(hex);
+const RED = ["#fbd5cf", "#f6ab9f", "#ef7f70", "#e34948", "#c13433", "#992325", "#6d1617"].map(hex);
+function ramp(stops, s) {
+  const x = Math.max(0, Math.min(1, s)) * (stops.length - 1), i = Math.min(stops.length - 2, Math.floor(x));
+  return mix(stops[i], stops[i + 1], x - i);
+}
+function colorT(T) {
+  const z = hex(TOK.zero);
+  if (T > 0.15) return ramp(RED, Math.pow((T - 0.15) / 15, 0.75));
+  if (T < -0.15) return ramp(BLUE, Math.pow((-T - 0.15) / 17, 0.75));
+  return z;
+}
+const SITE_COLOR = i => TOK["series-" + (i + 1)];
+let LUT = [];
+function buildLUT() { LUT = []; for (let q = 0; q < 255; q++) LUT.push(colorT(DATA.T_lo + q / 254 * (DATA.T_hi - DATA.T_lo))); }
+
+/* ---------- data ---------- */
+function u8(b64) { const s = atob(b64), a = new Uint8Array(s.length); for (let i = 0; i < s.length; i++) a[i] = s.charCodeAt(i); return a; }
+function i16(b64) { const b = u8(b64); return new Int16Array(b.buffer); }
+const N = DATA.n, DISP = DATA.disp, ND = DISP.length, SPLIT = DATA.split;
+const SITES = DATA.sites.map(s => {
+  const nd = s.depths.length, f = a => { const r = i16(a); return (t, j) => { const v = r[t * nd + j]; return v === -32768 ? NaN : v / 100; }; };
+  const o = { ...s, nd, heatObs: u8(s.heat_obs), heatMod: u8(s.heat_mod), O: f(s.obs), LO: f(s.lo), MID: f(s.mid), HI: f(s.hi), BEST: f(s.best) };
+  o.envMin = []; o.envMax = [];
+  for (let j = 0; j < nd; j++) { let lo = 1e9, hi = -1e9; for (let t = 0; t < N; t++) { const v = o.O(t, j); if (v === v) { lo = Math.min(lo, v); hi = Math.max(hi, v); } } o.envMin.push(lo); o.envMax.push(hi); }
+  return o;
+});
+const DAY0 = new Date(DATA.dates0 + "T00:00:00Z");
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const dayDate = t => new Date(DAY0.getTime() + t * 86400000);
+const fmtDate = t => { const d = dayDate(t); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+const fmtT = v => v === v ? `${v < 0 ? "−" : v > 0 ? "+" : ""}${Math.abs(v).toFixed(1)} °C` : "–";
+const S = { t: 200, playing: false, speed: 3 };
+
+/* ---------- canvas helpers ---------- */
+function fit(canvas) {
+  const dpr = window.devicePixelRatio || 1, r = canvas.getBoundingClientRect();
+  const w = Math.max(10, Math.round(r.width)), h = Math.max(10, Math.round(r.height));
+  if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) { canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr); }
+  const ctx = canvas.getContext("2d"); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w, h };
+}
+const font = (px, w = 400, mono = false) => `${w} ${px}px ${mono ? '"IBM Plex Mono", monospace' : '"IBM Plex Sans", system-ui, sans-serif'}`;
+const tip = document.getElementById("tip");
+function showTip(ev, html) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const x = Math.min(window.innerWidth - tip.offsetWidth - 8, ev.clientX + 14), y = Math.min(window.innerHeight - tip.offsetHeight - 8, ev.clientY + 14);
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+const hideTip = () => { tip.style.display = "none"; };
+const row = (k, v, sw) => `<div class="row"><span class="k">${sw ? `<span class="sw" style="background:${sw};margin-right:5px"></span>` : ""}${k}</span><span>${v}</span></div>`;
+
+/* ---------- KPIs ---------- */
+function kpis() {
+  const mins = SITES.map(s => s.envMin[0]);
+  const lls = SITES[1], t = SITES[3];
+  const r = DATA.rmse.full, rv = SITES.map((s, i) => r[i][1]).filter(v => v === v);
+  const ic = mins.indexOf(Math.min(...mins)), iw = mins.indexOf(Math.max(...mins)), sf = DATA.snow_factor.map(x => x[1]);
+  document.getElementById("l-cold").textContent = `${fmtT(mins[ic])} (${SITES[ic].name.toLowerCase()})`;
+  document.getElementById("l-warm").textContent = `${fmtT(mins[iw])} (${SITES[iw].name.toLowerCase()})`;
+  const items = [
+    [`${fmtT(mins[ic]).replace(" °C", "")} / ${fmtT(mins[iw]).replace(" °C", "")}`, `coldest at 10 cm (°C), ${SITES[ic].key} / ${SITES[iw].key}`],
+    [`${Math.min(...sf).toFixed(2)}× to ${Math.max(...sf).toFixed(2)}×`, "of the station's snow held at the sites (calibrated)"],
+    [`${(rv.reduce((a, b) => a + b, 0) / rv.length).toFixed(2)} °C`, "error on the held-out winter, all sensors"],
+    [`${Object.keys(DATA.params).length}`, "coefficients fitted jointly by gradient"],
+  ];
+  document.getElementById("kpis").innerHTML = items.map(([v, l]) => `<div class="kpi"><span class="v">${v}</span><span class="l">${l}</span></div>`).join("");
+}
+
+/* ---------- heat maps ---------- */
+const HP = { l: 40, r: 6, t: 6, b: 18 };
+const heatImgs = {};
+function heatImage(s, kind) {
+  const c = document.createElement("canvas"); c.width = N; c.height = ND;
+  const ctx = c.getContext("2d"), im = ctx.createImageData(N, ND), src = kind === "obs" ? s.heatObs : s.heatMod;
+  const miss = hex(TOK.missing);
+  for (let r = 0; r < ND; r++) for (let t = 0; t < N; t++) {
+    const q = src[r * N + t], col = q === 255 ? miss : LUT[q], o = (r * N + t) * 4;
+    im.data[o] = col[0]; im.data[o + 1] = col[1]; im.data[o + 2] = col[2]; im.data[o + 3] = 255;
+  }
+  ctx.putImageData(im, 0, 0); return c;
+}
+function buildHeat() { for (const s of SITES) { heatImgs[s.key + "obs"] = heatImage(s, "obs"); heatImgs[s.key + "mod"] = heatImage(s, "mod"); } }
+const DMAX = DISP[ND - 1] + 0.025;
+function drawHeat(cv, s, kind) {
+  const { ctx, w, h } = fit(cv);
+  ctx.clearRect(0, 0, w, h);
+  const pw = w - HP.l - HP.r, ph = h - HP.t - HP.b;
+  const y0 = HP.t + (DISP[0] - 0.025) / DMAX * ph;
+  ctx.fillStyle = TOK.missing; ctx.fillRect(HP.l, HP.t, pw, y0 - HP.t);
+  ctx.imageSmoothingEnabled = true;
+  ctx.drawImage(heatImgs[s.key + kind], HP.l, y0, pw, HP.t + ph - y0);
+  const xOf = t => HP.l + t / (N - 1) * pw, yOf = d => HP.t + d / DMAX * ph;
+  // held-out bracket
+  ctx.strokeStyle = TOK.ink; ctx.lineWidth = 1; ctx.setLineDash([3, 3]);
+  ctx.beginPath(); ctx.moveTo(xOf(SPLIT), HP.t); ctx.lineTo(xOf(SPLIT), HP.t + ph); ctx.stroke(); ctx.setLineDash([]);
+  // axes
+  ctx.fillStyle = TOK.muted; ctx.font = font(10.5); ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (const d of [0, 1, 2, 3, 4]) ctx.fillText(`${d} m`, HP.l - 6, Math.min(yOf(d), HP.t + ph - 4));
+  if (kind === "obs") { ctx.strokeStyle = TOK.ink; ctx.lineWidth = 1; for (const d of s.depths) { ctx.beginPath(); ctx.moveTo(HP.l - 3, yOf(d)); ctx.lineTo(HP.l, yOf(d)); ctx.stroke(); } }
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (let y = 2015; y <= 2018; y++) { const t = Math.round((Date.UTC(y, 0, 1) - DAY0.getTime()) / 86400000); ctx.fillText(String(y), xOf(t), h - HP.b + 4); }
+  // cursor
+  const xc = xOf(S.t); ctx.strokeStyle = TOK.ink; ctx.lineWidth = 1.5;
+  ctx.beginPath(); ctx.moveTo(xc, HP.t); ctx.lineTo(xc, HP.t + ph); ctx.stroke();
+  cv._g = { xOf, yOf, pw, ph };
+}
+function heatValue(s, kind, t, d) {
+  const r = Math.round((d - DISP[0]) / 0.05); if (r < 0 || r >= ND) return NaN;
+  const q = (kind === "obs" ? s.heatObs : s.heatMod)[r * N + t];
+  return q === 255 ? NaN : DATA.T_lo + q / 254 * (DATA.T_hi - DATA.T_lo);
+}
+const heatCanvases = [];
+function setupRows() {
+  const rows = document.getElementById("rows");
+  SITES.forEach((s, i) => {
+    const el = document.createElement("div"); el.className = "site-row";
+    const dj = SITES[i].depths.length;
+    el.innerHTML = `<div class="site-label"><span class="nm"><span class="sw" style="background:var(--series-${i + 1})"></span>${s.name}</span>
+      <span class="meta">${s.key} · ${dj} sensors to ${s.depths[dj - 1]} m</span>
+      <span class="meta">coldest at 10 cm: ${fmtT(s.envMin[0])}</span>
+      <span class="meta">snow held: ${DATA.snow_factor[i][1].toFixed(2)}× station</span></div>
+      <canvas class="heat" aria-label="${s.name}, measured"></canvas><canvas class="heat" aria-label="${s.name}, model"></canvas>`;
+    rows.appendChild(el);
+    const [co, cm] = el.querySelectorAll("canvas");
+    for (const [cv, kind] of [[co, "obs"], [cm, "mod"]]) {
+      heatCanvases.push([cv, s, kind]);
+      const pos = ev => { const r = cv.getBoundingClientRect(), g = cv._g; return { t: Math.round(Math.max(0, Math.min(N - 1, (ev.clientX - r.left - HP.l) / g.pw * (N - 1)))), d: (ev.clientY - r.top - HP.t) / g.ph * DMAX }; };
+      cv.addEventListener("mousemove", ev => {
+        const { t, d } = pos(ev); if (d < 0 || d > DMAX) { hideTip(); return; }
+        const vo = heatValue(s, "obs", t, d), vm = heatValue(s, "mod", t, d);
+        showTip(ev, `<div style="font-weight:600;margin-bottom:3px">${s.name}</div>${row("date", fmtDate(t))}${row("depth", d.toFixed(2) + " m")}${row("measured", fmtT(vo))}${row("model", fmtT(vm))}`);
+      });
+      cv.addEventListener("mouseleave", hideTip);
+      cv.addEventListener("click", ev => { setDay(pos(ev).t); });
+    }
+  });
+  document.getElementById("splitnote").textContent = "Dashed line: start of the held-out year";
+}
+function drawCbar() {
+  const cv = document.getElementById("cbar"), { ctx, w, h } = fit(cv);
+  ctx.clearRect(0, 0, w, h);
+  const x0 = HP.l, x1 = w - HP.r, bh = 10, T0 = -20, T1 = 20, xOf = T => x0 + (T - T0) / (T1 - T0) * (x1 - x0);
+  for (let x = x0; x < x1; x++) { ctx.fillStyle = rgb(colorT(T0 + (x - x0) / (x1 - x0) * (T1 - T0))); ctx.fillRect(x, 2, 1.5, bh); }
+  ctx.fillStyle = TOK.muted; ctx.font = font(11); ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (const T of [-15, -10, -5, 0, 5, 10, 15]) ctx.fillText(`${T > 0 ? "+" : T < 0 ? "−" : ""}${Math.abs(T)}`, xOf(T), bh + 6);
+  ctx.textAlign = "left"; ctx.fillText("−20 °C", x0, bh + 6); ctx.textAlign = "right"; ctx.fillText("+20 °C", x1, bh + 6);
+}
+
+/* ---------- profiles ---------- */
+const PP = { l: 36, r: 10, t: 66, b: 26 };
+const profCanvases = [];
+function setupProfiles() {
+  const box = document.getElementById("profiles");
+  SITES.forEach((s, i) => {
+    const c = document.createElement("canvas"); c.setAttribute("aria-label", `${s.name}: temperature profile`);
+    box.appendChild(c); profCanvases.push([c, s, i]);
+    c.addEventListener("mousemove", ev => {
+      const g = c._g; if (!g) return;
+      const r = c.getBoundingClientRect(), d = (ev.clientY - r.top - PP.t) / g.ph * g.dmax;
+      let j = 0, bd = 1e9; s.depths.forEach((dd, k) => { if (Math.abs(dd - d) < bd) { bd = Math.abs(dd - d); j = k; } });
+      showTip(ev, `<div style="font-weight:600;margin-bottom:3px">${s.name} · ${s.depths[j]} m</div>${row("date", fmtDate(S.t))}${row("measured", fmtT(s.O(S.t, j)))}${row("model median", fmtT(s.MID(S.t, j)))}${row("model 90%", `${fmtT(s.LO(S.t, j)).replace(" °C", "")} to ${fmtT(s.HI(S.t, j))}`)}${row("record range", `${fmtT(s.envMin[j]).replace(" °C", "")} to ${fmtT(s.envMax[j])}`)}${row("snow on ground", `${(s.snow[S.t] * 100).toFixed(0)} cm`)}`);
+    });
+    c.addEventListener("mouseleave", hideTip);
+  });
+}
+function drawProfile(c, s, i) {
+  const { ctx, w, h } = fit(c); ctx.clearRect(0, 0, w, h);
+  const dmax = 4.2, T0 = -20, T1 = 20, pw = w - PP.l - PP.r, ph = h - PP.t - PP.b;
+  const xOf = T => PP.l + (Math.max(T0, Math.min(T1, T)) - T0) / (T1 - T0) * pw, yOf = d => PP.t + d / dmax * ph;
+  c._g = { ph, dmax };
+  const col = hex(SITE_COLOR(i));
+  // title
+  ctx.fillStyle = TOK.ink; ctx.font = font(13, 600); ctx.textAlign = "left"; ctx.textBaseline = "top";
+  ctx.fillText(s.name, PP.l - 30, 2);
+  // snow above ground: 1 m of snow = 40 px
+  const sd = s.snow[S.t], sh = Math.min(48, sd * 40);
+  ctx.fillStyle = TOK.surface; ctx.strokeStyle = TOK.line; ctx.lineWidth = 1;
+  if (sh > 0.5) { ctx.fillStyle = TOK.dark ? "#cfd8de" : "#e9f0f5"; ctx.fillRect(PP.l, PP.t - sh, pw, sh); ctx.strokeRect(PP.l + 0.5, PP.t - sh + 0.5, pw - 1, sh); }
+  ctx.fillStyle = TOK.muted; ctx.font = font(11); ctx.textAlign = "right"; ctx.textBaseline = "bottom";
+  ctx.fillText(sd > 0.005 ? `snow ${(sd * 100).toFixed(0)} cm` : "no snow", w - PP.r, PP.t - 2 - (sh > 14 ? 0 : sh));
+  // ground line and grid
+  ctx.strokeStyle = TOK.line; ctx.lineWidth = 1;
+  for (const T of [-10, 10]) { ctx.beginPath(); ctx.moveTo(xOf(T), PP.t); ctx.lineTo(xOf(T), PP.t + ph); ctx.stroke(); }
+  ctx.strokeStyle = TOK.muted; ctx.beginPath(); ctx.moveTo(xOf(0), PP.t); ctx.lineTo(xOf(0), PP.t + ph); ctx.stroke();
+  ctx.strokeStyle = TOK.ink; ctx.lineWidth = 1.5; ctx.beginPath(); ctx.moveTo(PP.l, PP.t); ctx.lineTo(PP.l + pw, PP.t); ctx.stroke();
+  // envelope (measured range)
+  const dd = s.depths, nd = dd.length;
+  ctx.fillStyle = TOK.envelope; ctx.beginPath();
+  dd.forEach((d, j) => (j ? ctx.lineTo : ctx.moveTo).call(ctx, xOf(s.envMin[j]), yOf(d)));
+  for (let j = nd - 1; j >= 0; j--) ctx.lineTo(xOf(s.envMax[j]), yOf(dd[j]));
+  ctx.closePath(); ctx.fill();
+  // model band and median
+  ctx.fillStyle = rgb(col, 0.28); ctx.beginPath();
+  dd.forEach((d, j) => (j ? ctx.lineTo : ctx.moveTo).call(ctx, xOf(s.LO(S.t, j)), yOf(d)));
+  for (let j = nd - 1; j >= 0; j--) ctx.lineTo(xOf(s.HI(S.t, j)), yOf(dd[j]));
+  ctx.closePath(); ctx.fill();
+  ctx.strokeStyle = SITE_COLOR(i); ctx.lineWidth = 2; ctx.beginPath();
+  dd.forEach((d, j) => (j ? ctx.lineTo : ctx.moveTo).call(ctx, xOf(s.MID(S.t, j)), yOf(d))); ctx.stroke();
+  // sensors
+  for (let j = 0; j < nd; j++) {
+    const v = s.O(S.t, j); if (v !== v) continue;
+    ctx.beginPath(); ctx.arc(xOf(v), yOf(dd[j]), 4, 0, 2 * Math.PI);
+    ctx.fillStyle = TOK.ink; ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = TOK.surface; ctx.stroke();
+  }
+  // axes
+  ctx.fillStyle = TOK.muted; ctx.font = font(10.5); ctx.textAlign = "right"; ctx.textBaseline = "middle";
+  for (const d of [1, 2, 3, 4]) ctx.fillText(`${d} m`, PP.l - 5, yOf(d));
+  ctx.textAlign = "center"; ctx.textBaseline = "top";
+  for (const T of [-10, 0, 10]) ctx.fillText(`${T > 0 ? "+" : T < 0 ? "−" : ""}${Math.abs(T)}`, xOf(T), h - PP.b + 5);
+  ctx.textAlign = "right"; ctx.fillText("°C", PP.l + pw, h - PP.b + 5);
+}
+
+/* ---------- generic line chart ---------- */
+function lineChart(cv, cfg) {
+  // cfg: n, x(i)->label value, xticks [[i,label]], series [{name,color,v,lo,hi,dash,width}], lo, hi, step, fmt, invert, shade:[i0,i1], hlines, tipTitle(i)
+  const P = { l: 44, r: cfg.labels === false ? 12 : 64, t: 10, b: 24 };
+  function draw() {
+    const { ctx, w, h } = fit(cv); ctx.clearRect(0, 0, w, h);
+    const n = cfg.n(), ser = cfg.series();
+    const { lo, hi, step } = cfg.range();
+    const xOf = i => P.l + i / (n - 1) * (w - P.l - P.r);
+    const yOf = v => cfg.invert ? P.t + (v - lo) / (hi - lo) * (h - P.t - P.b) : h - P.b - (v - lo) / (hi - lo) * (h - P.t - P.b);
+    if (cfg.shade) { const [a, b] = cfg.shade; ctx.fillStyle = TOK.envelope; ctx.fillRect(xOf(a), P.t, xOf(b) - xOf(a), h - P.t - P.b); }
+    ctx.font = font(10.5); ctx.fillStyle = TOK.muted; ctx.strokeStyle = TOK.line; ctx.lineWidth = 1; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (let v = lo; v <= hi + 1e-9; v += step) { ctx.beginPath(); ctx.moveTo(P.l, yOf(v)); ctx.lineTo(w - P.r, yOf(v)); ctx.stroke(); ctx.fillText(cfg.fmt(v), P.l - 6, yOf(v)); }
+    if (cfg.zero) { ctx.strokeStyle = TOK.muted; ctx.beginPath(); ctx.moveTo(P.l, yOf(0)); ctx.lineTo(w - P.r, yOf(0)); ctx.stroke(); }
+    ctx.textAlign = "center"; ctx.textBaseline = "top"; ctx.fillStyle = TOK.muted;
+    for (const [i, lab] of cfg.xticks()) ctx.fillText(lab, xOf(i), h - P.b + 5);
+    for (const s of ser) if (s.lo) {
+      ctx.fillStyle = rgb(hex(s.color), 0.2); ctx.beginPath();
+      s.lo.forEach((v, i) => (i ? ctx.lineTo : ctx.moveTo).call(ctx, xOf(i), yOf(v)));
+      for (let i = n - 1; i >= 0; i--) ctx.lineTo(xOf(i), yOf(s.hi[i])); ctx.closePath(); ctx.fill();
+    }
+    for (const s of ser) {
+      ctx.strokeStyle = s.color; ctx.lineWidth = s.width || 2; ctx.setLineDash(s.dash || []);
+      ctx.beginPath(); let pen = false;
+      s.v.forEach((v, i) => { if (v === null || v !== v) { pen = false; return; } if (pen) ctx.lineTo(xOf(i), yOf(v)); else { ctx.moveTo(xOf(i), yOf(v)); pen = true; } });
+      ctx.stroke(); ctx.setLineDash([]);
+    }
+    if (cfg.labels !== false) {
+      ctx.font = font(11, 500); ctx.textAlign = "left"; ctx.textBaseline = "middle";
+      const ends = ser.filter(s => s.label !== false).map(s => { let i = n - 1; while (i > 0 && (s.v[i] === null || s.v[i] !== s.v[i])) i--; return { s, y: yOf(s.v[i]) }; }).sort((a, b) => a.y - b.y);
+      let prev = -1e9;
+      for (const e of ends) { const y = Math.max(e.y, prev + 13); prev = y; ctx.fillStyle = TOK.ink; ctx.fillText(e.s.short || e.s.name, w - P.r + 6, y); }
+    }
+    if (cv._hover !== undefined) { const x = xOf(cv._hover); ctx.strokeStyle = TOK.muted; ctx.setLineDash([3, 3]); ctx.beginPath(); ctx.moveTo(x, P.t); ctx.lineTo(x, h - P.b); ctx.stroke(); ctx.setLineDash([]); }
+    cv._g = { xOf, n, w, P };
+  }
+  cv.addEventListener("mousemove", ev => {
+    const g = cv._g; if (!g) return;
+    const r = cv.getBoundingClientRect(), i = Math.max(0, Math.min(g.n - 1, Math.round((ev.clientX - r.left - g.P.l) / (g.w - g.P.l - g.P.r) * (g.n - 1))));
+    cv._hover = i; draw();
+    showTip(ev, `<div style="font-weight:600;margin-bottom:3px">${cfg.tipTitle(i)}</div>` + cfg.series().map(s => row(s.name, cfg.fmtTip(s.v[i], s, i), s.color)).join(""));
+  });
+  cv.addEventListener("mouseleave", () => { cv._hover = undefined; draw(); hideTip(); });
+  charts.push(draw);
+  return draw;
+}
+const charts = [];
+
+/* ---------- snow charts ---------- */
+function setupSnow() {
+  const st = DATA.station, d0 = new Date(st.date0 + "T00:00:00Z"), n = st.obs.length;
+  const dlab = i => { const d = new Date(d0.getTime() + i * 86400000); return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]} ${d.getUTCFullYear()}`; };
+  const ticks = []; for (let y = 2013; y <= 2018; y++) ticks.push([Math.round((Date.UTC(y, 0, 1) - d0.getTime()) / 86400000), String(y)]);
+  lineChart(document.getElementById("snowchart"), {
+    n: () => n, xticks: () => ticks, range: () => ({ lo: 0, hi: 1.4, step: 0.2 }), fmt: v => `${v.toFixed(1)} m`, labels: false,
+    shade: [st.split, n - 1], tipTitle: dlab, fmtTip: v => v === null || v !== v ? "–" : `${(v * 100).toFixed(0)} cm`,
+    series: () => [{ name: "measured", color: TOK.ink, v: st.obs, width: 1.6 }, { name: "model", color: TOK["series-1"], v: st.model, width: 1.6 }],
+  });
+  // catch vs winter temperature at 10 cm
+  const cv = document.getElementById("catch");
+  const djf = SITES.map(s => { let a = 0, k = 0; for (let t = 0; t < N; t++) { const m = dayDate(t).getUTCMonth(); if (m === 11 || m <= 1) { const v = s.O(t, 0); if (v === v) { a += v; k++; } } } return a / k; });
+  function draw() {
+    const { ctx, w, h } = fit(cv); ctx.clearRect(0, 0, w, h);
+    const P = { l: 46, r: 16, t: 14, b: 40 }, xl = Math.log(0.12), xh = Math.log(1.6), lo = -10, hi = 0;
+    const xOf = v => P.l + (Math.log(v) - xl) / (xh - xl) * (w - P.l - P.r), yOf = v => h - P.b - (v - lo) / (hi - lo) * (h - P.t - P.b);
+    ctx.font = font(10.5); ctx.strokeStyle = TOK.line; ctx.fillStyle = TOK.muted; ctx.lineWidth = 1; ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (let v = lo; v <= hi; v += 2) { ctx.beginPath(); ctx.moveTo(P.l, yOf(v)); ctx.lineTo(w - P.r, yOf(v)); ctx.stroke(); ctx.fillText(`${v < 0 ? "−" : ""}${Math.abs(v)}`, P.l - 6, yOf(v)); }
+    ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (const v of [0.125, 0.25, 0.5, 1]) { ctx.beginPath(); ctx.moveTo(xOf(v), P.t); ctx.lineTo(xOf(v), h - P.b); ctx.stroke(); ctx.fillText(`${v}×`, xOf(v), h - P.b + 5); }
+    ctx.fillText("snow held, relative to the station (log scale)", (P.l + w - P.r) / 2, h - P.b + 21);
+    ctx.save(); ctx.translate(12, (P.t + h - P.b) / 2); ctx.rotate(-Math.PI / 2); ctx.fillText("Dec–Feb at 10 cm (°C)", 0, -6); ctx.restore();
+    const pts = [];
+    SITES.forEach((s, i) => {
+      const [a, m, b] = DATA.snow_factor[i], y = yOf(djf[i]);
+      ctx.strokeStyle = SITE_COLOR(i); ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(xOf(a), y); ctx.lineTo(xOf(b), y); ctx.stroke();
+      ctx.beginPath(); ctx.arc(xOf(m), y, 6, 0, 2 * Math.PI); ctx.fillStyle = SITE_COLOR(i); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = TOK.surface; ctx.stroke();
+      pts.push({ x: xOf(m), y, i });
+    });
+    // labels: above the point, or below when another label is already there
+    ctx.font = font(11.5, 500); ctx.textAlign = "left"; ctx.fillStyle = TOK.ink;
+    const placed = [];
+    pts.slice().sort((p, q) => p.y - q.y).forEach(p => {
+      const name = SITES[p.i].name, tw = ctx.measureText(name).width, x = Math.min(p.x + 6, w - P.r - tw);
+      let y = p.y - 8, base = "bottom";
+      if (placed.some(r => Math.abs(r.y - y) < 14 && x < r.x + r.w && r.x < x + tw)) { y = p.y + 8; base = "top"; }
+      ctx.textBaseline = base; ctx.fillText(name, x, y);
+      placed.push({ x, y: base === "top" ? y + 12 : y, w: tw });
+    });
+    cv._pts = pts;
+  }
+  cv.addEventListener("mousemove", ev => {
+    const r = cv.getBoundingClientRect(), x = ev.clientX - r.left, y = ev.clientY - r.top;
+    const p = (cv._pts || []).find(p => Math.hypot(p.x - x, p.y - y) < 14);
+    if (!p) { hideTip(); return; }
+    const [a, m, b] = DATA.snow_factor[p.i];
+    showTip(ev, `<div style="font-weight:600;margin-bottom:3px">${SITES[p.i].name}</div>${row("snow held", `${m.toFixed(2)}× (${a.toFixed(2)} to ${b.toFixed(2)})`)}${row("Dec–Feb at 10 cm", fmtT(djf[p.i]))}`);
+  });
+  cv.addEventListener("mouseleave", hideTip);
+  charts.push(draw);
+}
+
+/* ---------- phase map ---------- */
+function setupPhase() {
+  const cv = document.getElementById("phase"), PH = DATA.phase, ns = PH.snow.length, nw = PH.warm.length;
+  const yrs = DATA.hind.years, ta = DATA.hind.tair, avg = (a, b) => { let s = 0, k = 0; yrs.forEach((y, i) => { if (y >= a && y <= b) { s += ta[i]; k++; } }); return s / k; };
+  const d80 = avg(1981, 1990) - avg(2015, 2024);
+  const P = { l: 56, r: 175, t: 14, b: 44 };
+  const lsn = PH.snow.map(Math.log);
+  function field(arr, x, y) {   // bilinear in (log snow index, warm index)
+    const fx = Math.max(0, Math.min(ns - 1.0001, x)), fy = Math.max(0, Math.min(nw - 1.0001, y)), i = Math.floor(fx), j = Math.floor(fy), u = fx - i, v = fy - j;
+    return (1 - u) * (1 - v) * arr[j][i] + u * (1 - v) * arr[j][i + 1] + (1 - u) * v * arr[j + 1][i] + u * v * arr[j + 1][i + 1];
+  }
+  let img = null;
+  function build() {
+    const W = 220, H = 150, c = document.createElement("canvas"); c.width = W; c.height = H;
+    const ctx = c.getContext("2d"), im = ctx.createImageData(W, H);
+    for (let r = 0; r < H; r++) for (let q = 0; q < W; q++) {
+      const v = field(PH.mean, q / (W - 1) * (ns - 1), (H - 1 - r) / (H - 1) * (nw - 1)), col = colorT(v * 2.5), o = (r * W + q) * 4;
+      im.data[o] = col[0]; im.data[o + 1] = col[1]; im.data[o + 2] = col[2]; im.data[o + 3] = 255;
+    }
+    ctx.putImageData(im, 0, 0); img = c;
+  }
+  function crossing(arr) {   // for each warming row, the snow index where arr crosses 0
+    const pts = [];
+    for (let j = 0; j < nw; j++) for (let i = 0; i < ns - 1; i++) {
+      const a = arr[j][i], b = arr[j][i + 1];
+      if ((a < 0) !== (b < 0)) { pts.push([i + a / (a - b), j]); break; }
+    }
+    return pts;
+  }
+  function draw() {
+    if (!img) build();
+    const { ctx, w, h } = fit(cv); ctx.clearRect(0, 0, w, h);
+    const pw = w - P.l - P.r, ph = h - P.t - P.b;
+    const xOfI = i => P.l + i / (ns - 1) * pw, yOfJ = j => P.t + ph - j / (nw - 1) * ph;
+    const xOfS = s => P.l + (Math.log(s) - lsn[0]) / (lsn[ns - 1] - lsn[0]) * pw, yOfW = dT => P.t + ph - (dT - PH.warm[0]) / (PH.warm[nw - 1] - PH.warm[0]) * ph;
+    ctx.imageSmoothingEnabled = true; ctx.drawImage(img, P.l, P.t, pw, ph);
+    // contours
+    for (const [arr, dash, lab] of [[PH.mean, [], "0 °C mean at 1 m"]]) {
+      const pts = crossing(arr); if (pts.length < 2) continue;
+      ctx.strokeStyle = TOK.ink; ctx.lineWidth = 2; ctx.setLineDash(dash); ctx.beginPath();
+      pts.forEach(([x, y], k) => (k ? ctx.lineTo : ctx.moveTo).call(ctx, xOfI(x), yOfJ(y))); ctx.stroke(); ctx.setLineDash([]);
+      const [xl, yl] = pts[pts.length - 1];
+      ctx.fillStyle = TOK.ink; ctx.font = font(11.5, 500); ctx.textAlign = "left"; ctx.textBaseline = "bottom";
+      ctx.fillText(lab, Math.min(xOfI(xl) + 4, P.l + pw - 120), yOfJ(yl) + (dash.length ? 14 : -2));
+    }
+    // reference climates
+    ctx.font = font(11, 500); ctx.textBaseline = "middle"; ctx.textAlign = "left";
+    for (const [dT, lab] of [[0, "today (2014–24)"], [d80, "1980s air"], [2, "+2 °C"]]) {
+      ctx.strokeStyle = TOK.ink; ctx.lineWidth = 1; ctx.setLineDash(dT === 0 ? [] : [2, 3]);
+      ctx.beginPath(); ctx.moveTo(P.l, yOfW(dT)); ctx.lineTo(P.l + pw, yOfW(dT)); ctx.stroke(); ctx.setLineDash([]);
+      ctx.fillStyle = TOK.ink; ctx.fillText(lab, P.l + pw + 8, yOfW(dT));
+    }
+    // sites
+    const pts = [];
+    SITES.forEach((s, i) => {
+      const [a, m, b] = DATA.snow_factor[i], y = yOfW(0);
+      ctx.strokeStyle = TOK.surface; ctx.lineWidth = 5; ctx.beginPath(); ctx.moveTo(xOfS(a), y); ctx.lineTo(xOfS(b), y); ctx.stroke();
+      ctx.strokeStyle = SITE_COLOR(i); ctx.lineWidth = 2.5; ctx.beginPath(); ctx.moveTo(xOfS(a), y); ctx.lineTo(xOfS(b), y); ctx.stroke();
+      ctx.beginPath(); ctx.arc(xOfS(m), y, 6, 0, 2 * Math.PI); ctx.fillStyle = SITE_COLOR(i); ctx.fill(); ctx.lineWidth = 2; ctx.strokeStyle = TOK.surface; ctx.stroke();
+      pts.push({ x: xOfS(m), y, i });
+    });
+    ctx.font = font(11.5, 500); ctx.fillStyle = TOK.ink; ctx.textAlign = "center"; ctx.textBaseline = "bottom";
+    SITES.forEach((s, i) => { const x = pts[i].x; ctx.fillText(s.key, x, yOfW(0) - 9 - (i % 2) * 13); });
+    // axes
+    ctx.font = font(10.5); ctx.fillStyle = TOK.muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
+    for (const v of [0.05, 0.1, 0.2, 0.5, 1, 1.5]) ctx.fillText(`${v}×`, xOfS(v), P.t + ph + 5);
+    ctx.fillText("snow held, relative to the valley weather station (log scale)", P.l + pw / 2, P.t + ph + 22);
+    ctx.textAlign = "right"; ctx.textBaseline = "middle";
+    for (let dT = -4; dT <= 3; dT++) ctx.fillText(`${dT > 0 ? "+" : dT < 0 ? "−" : ""}${Math.abs(dT)} °C`, P.l - 6, yOfW(dT));
+    // colour key (vertical, right margin)
+    const bx = P.l + pw + 116, by0 = P.t + 6, by1 = P.t + ph - 6, vk = y => 4 - (y - by0) / (by1 - by0) * 8;
+    for (let y = by0; y < by1; y++) { ctx.fillStyle = rgb(colorT(vk(y) * 2.5)); ctx.fillRect(bx, y, 10, 1.5); }
+    ctx.fillStyle = TOK.muted; ctx.font = font(10.5); ctx.textAlign = "left"; ctx.textBaseline = "middle";
+    for (const v of [-4, -2, 0, 2, 4]) ctx.fillText(`${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)} °C`, bx + 14, by0 + (4 - v) / 8 * (by1 - by0));
+    cv._g = { P, pw, ph, xOfS, yOfW, pts };
+  }
+  cv.addEventListener("mousemove", ev => {
+    const g = cv._g; if (!g) return;
+    const r = cv.getBoundingClientRect(), x = ev.clientX - r.left - g.P.l, y = ev.clientY - r.top - g.P.t;
+    if (x < 0 || x > g.pw || y < 0 || y > g.ph) { hideTip(); return; }
+    const fi = x / g.pw * (ns - 1), fj = (g.ph - y) / g.ph * (nw - 1);
+    const snow = Math.exp(lsn[0] + fi / (ns - 1) * (lsn[ns - 1] - lsn[0])), dT = PH.warm[0] + fj / (nw - 1) * (PH.warm[nw - 1] - PH.warm[0]);
+    const near = g.pts.find(p => Math.hypot(p.x - (x + g.P.l), p.y - (y + g.P.t)) < 12);
+    showTip(ev, (near ? `<div style="font-weight:600;margin-bottom:3px">${SITES[near.i].name}</div>` : "") +
+      row("snow held", `${snow.toFixed(2)}×`) + row("air shift", `${dT >= 0 ? "+" : "−"}${Math.abs(dT).toFixed(1)} °C`) +
+      row("mean at 1 m", fmtT(field(PH.mean, fi, fj))));
+  });
+  cv.addEventListener("mouseleave", hideTip);
+  charts.push(draw);
+  return () => { img = null; };
+}
+
+/* ---------- hindcast ---------- */
+function setupHind() {
+  const H = DATA.hind, yrs = H.years, n = yrs.length;
+  const ticks = () => yrs.map((y, i) => [i, y]).filter(([i, y]) => y % 10 === 0).map(([i, y]) => [i, String(y)]);
+  document.getElementById("hindlegend").innerHTML = SITES.map((s, i) => `<span><span class="lg-line" style="border-color:var(--series-${i + 1})"></span>${s.name}</span>`).join("");
+  const mk = (k, name) => () => SITES.map((s, i) => ({ name: s.name, short: s.key, color: SITE_COLOR(i), v: H[k][1][i], lo: H[k][0][i], hi: H[k][2][i] }));
+  lineChart(document.getElementById("hmagt"), { n: () => n, xticks: ticks, range: () => ({ lo: -2, hi: 4, step: 1 }), fmt: v => `${v > 0 ? "+" : v < 0 ? "−" : ""}${Math.abs(v)}`, zero: true,
+    tipTitle: i => `${yrs[i]}, mean at 1 m`, fmtTip: v => fmtT(v), series: mk("magt") });
+  lineChart(document.getElementById("htair"), { n: () => n, xticks: ticks, range: () => ({ lo: -8, hi: -1, step: 1 }), fmt: v => `−${Math.abs(v)}`, labels: false,
+    tipTitle: i => `${yrs[i]}, air`, fmtTip: v => fmtT(v), series: () => [{ name: "air, annual mean", color: TOK.ink, v: H.tair, width: 1.8 }] });
+  lineChart(document.getElementById("hfrost"), { n: () => n, xticks: ticks, range: () => ({ lo: 0, hi: 4, step: 1 }), fmt: v => `${v} m`, invert: true,
+    tipTitle: i => `winter ending ${yrs[i]}, frost depth`, fmtTip: v => `${v.toFixed(2)} m`, series: mk("frost") });
+}
+
+/* ---------- tables ---------- */
+function tables() {
+  const R = DATA.rmse, cols = [["prior", "prior"], ["no_gw", "no groundwater"], ["no_inf", "no meltwater"], ["full", "full model"]].filter(([k]) => R[k]);
+  let h = `<thead><tr><th>Site</th>${cols.map(([, l]) => `<th colspan="2" style="text-align:center">${l}</th>`).join("")}</tr><tr><th></th>${cols.map(() => "<th>cal.</th><th>test</th>").join("")}</tr></thead><tbody>`;
+  SITES.forEach((s, i) => {
+    h += `<tr><td><span class="sw" style="background:var(--series-${i + 1});margin-right:6px"></span>${s.key}</td>`;
+    for (const [k] of cols) for (const c of [0, 1]) { const v = R[k][i][c]; h += `<td class="${k === "full" ? "best" : ""}">${v === null || v !== v ? "–" : v.toFixed(2)}</td>`; }
+    h += "</tr>";
+  });
+  document.getElementById("errtable").innerHTML = h + "</tbody>";
+  const P = DATA.params, show = [
+    ["k_th", "thawed sand conductivity", "W/m/K", 2], ["k_ratio", "frozen / thawed conductivity", "", 2], ["theta", "water content of the sand", "m³/m³", 3],
+    ["rho_snow", "snow density", "kg/m³", 0], ["f_inf", "meltwater that refreezes in the ground", "", 2], ["T_gw", "groundwater temperature", "°C", 1],
+    ["lam_gw", "groundwater exchange", "W/m³/K", 2], ["z_w_LLS", "water table, LLS", "m", 1], ["z_w_T", "water table, spruce", "m", 1]];
+  let t = `<thead><tr><th>Coefficient</th><th>fit</th><th>90% interval</th><th>prior</th></tr></thead><tbody>`;
+  for (const [k, l, u, d] of show) { const [m, a, b, p] = P[k]; t += `<tr><td>${l}${u ? ` (${u})` : ""}</td><td class="best">${m.toFixed(d)}</td><td>${a.toFixed(d)} to ${b.toFixed(d)}</td><td>${p.toFixed(d)}</td></tr>`; }
+  document.getElementById("partable").innerHTML = t + "</tbody>";
+}
+
+/* ---------- animation ---------- */
+const slider = document.getElementById("slider"), playBtn = document.getElementById("play");
+slider.max = N - 1;
+function setDay(t) { S.t = Math.max(0, Math.min(N - 1, Math.round(t))); slider.value = S.t; frame(); }
+function frame() {
+  document.getElementById("datelabel").textContent = fmtDate(S.t);
+  for (const [cv, s, kind] of heatCanvases) drawHeat(cv, s, kind);
+  for (const [c, s, i] of profCanvases) drawProfile(c, s, i);
+}
+slider.addEventListener("input", () => { setDay(+slider.value); });
+const SPEEDS = [["slow", 1], ["medium", 3], ["fast", 8]];
+document.getElementById("speed").innerHTML = SPEEDS.map(([l, v]) => `<button aria-pressed="${v === S.speed}" data-v="${v}">${l}</button>`).join("");
+document.querySelectorAll("#speed button").forEach(b => b.addEventListener("click", () => { S.speed = +b.dataset.v; document.querySelectorAll("#speed button").forEach(x => x.setAttribute("aria-pressed", x === b)); }));
+let last = null, acc = 0;
+function tick(ts) {
+  if (!S.playing) return;
+  if (last !== null) { acc += (ts - last) / 1000 * S.speed * 12; const k = Math.floor(acc); if (k > 0) { acc -= k; setDay((S.t + k) % N); } }
+  last = ts; requestAnimationFrame(tick);
+}
+function setPlaying(p) { S.playing = p; playBtn.textContent = p ? "Pause" : "Play"; playBtn.setAttribute("aria-label", p ? "Pause" : "Play"); if (p) { last = null; requestAnimationFrame(tick); } }
+playBtn.addEventListener("click", () => setPlaying(!S.playing));
+
+/* ---------- boot ---------- */
+let resetPhase = null;
+function drawAll() { drawCbar(); frame(); charts.forEach(f => f()); }
+function rethemed() { readTokens(); TOK.dark = matchMedia("(prefers-color-scheme: dark)").matches && document.documentElement.dataset.theme !== "light" || document.documentElement.dataset.theme === "dark"; buildLUT(); buildHeat(); if (resetPhase) resetPhase(); drawAll(); }
+readTokens(); TOK.dark = matchMedia("(prefers-color-scheme: dark)").matches; buildLUT(); buildHeat();
+kpis(); setupRows(); setupProfiles(); setupSnow(); resetPhase = setupPhase(); setupHind(); tables();
+drawAll();
+window.addEventListener("resize", drawAll);
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", rethemed);
+new MutationObserver(rethemed).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+</script>
+</body>
+</html>
